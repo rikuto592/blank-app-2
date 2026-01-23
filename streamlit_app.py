@@ -8,35 +8,48 @@ supabase = create_client(url, key)
 
 st.title("📝 Todo リスト（Supabase版）")
 
-# ---- Todo追加 ----
+# --- タスク追加 ---
 task = st.text_input("新しいタスクを入力")
 
 if st.button("追加"):
     if task:
-        supabase.table("todos").insert({"task": task}).execute()
-        st.success("追加しました")
+        supabase.table("todos").insert({
+            "task": task,
+            "is_done": False
+        }).execute()
+        st.success("タスクを追加しました！")
         st.rerun()
 
-# ---- Todo取得 ----
-response = supabase.table("todos").select("*").order("created_at").execute()
+st.divider()
+
+# --- 未完了タスク取得 ---
+response = (
+    supabase
+    .table("todos")
+    .select("*")
+    .eq("is_done", False)   # ← 未完了のみ
+    .order("created_at")
+    .execute()
+)
+
 todos = response.data
 
-st.subheader("Todo一覧")
+st.subheader("📋 Todo一覧（チェックで完了）")
 
-for todo in todos:
-    col1, col2 = st.columns([3, 1])
+if not todos:
+    st.info("未完了のタスクはありません 🎉")
+else:
+    for todo in todos:
+        checked = st.checkbox(
+            todo["task"],
+            key=todo["id"]
+        )
 
-    with col1:
-        if todo["is_done"]:
-            st.markdown(f"~~{todo['task']}~~")
-        else:
-            st.write(todo["task"])
-
-    with col2:
-        if not todo["is_done"]:
-            if st.button("完了", key=todo["id"]):
-                supabase.table("todos") \
-                    .update({"is_done": True}) \
-                    .eq("id", todo["id"]) \
-                    .execute()
-                st.rerun()
+        if checked:
+            # 完了したら削除
+            supabase.table("todos") \
+                .delete() \
+                .eq("id", todo["id"]) \
+                .execute()
+            st.rerun()
+n()
