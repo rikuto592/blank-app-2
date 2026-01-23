@@ -52,4 +52,4 @@ else:
                 .eq("id", todo["id"]) \
                 .execute()
             st.rerun()
-n()
+
