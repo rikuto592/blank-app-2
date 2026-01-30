@@ -3,4 +3,5 @@ supabase
 postgrest
 httpx
 python-dotenv
-
+pandas
+matplotlib
