@@ -1,4 +1,6 @@
 streamlit
 supabase
-pandas
-matplotlib
+postgrest
+httpx
+python-dotenv
+
